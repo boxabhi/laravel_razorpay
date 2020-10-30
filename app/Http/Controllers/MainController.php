@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Payment;
+use Monolog\SignalHandler;
 use Razorpay\Api\Api;
+use Razorpay\Api\Errors\SignatureVerificationError;
 use Session;
 
 class MainController extends Controller
@@ -27,7 +29,7 @@ class MainController extends Controller
         $name = $request->input('name');
         $amount = $request->input('amount');
 
-        $api = new Api('rzp_test_hL4Etd0bXHkmO1', 'Gluvl9s5qfTBfbL1Ar8tCsnG');
+        $api = new Api('rzp_test_CcRYorXwUKnx5y', 'SqHYHxVK94qmGBXwy717KHUl');
         $order  = $api->order->create(array('receipt' => '123', 'amount' => $amount * 100 , 'currency' => 'INR')); // Creates order
         $orderId = $order['id']; 
 
@@ -38,10 +40,16 @@ class MainController extends Controller
         $user_pay->payment_id = $orderId;
         $user_pay->save();
 
-        Session::put('order_id', $orderId);
-        Session::put('amount' , $amount);
+        $data = array(
+            'order_id' => $orderId,
+            'amount' => $amount
+        );
 
-        return redirect('/');
+        // Session::put('order_id', $orderId);
+        // Session::put('amount' , $amount);
+
+       
+        return redirect()->route('home')->with('data', $data);
 
 
 
@@ -54,11 +62,41 @@ class MainController extends Controller
         $user = Payment::where('payment_id', $data['razorpay_order_id'])->first();
         $user->payment_done = true;
         $user->razorpay_id = $data['razorpay_payment_id'];
-        $user->save();
-        return redirect('/success');
 
-       
+        $api = new Api('rzp_test_CcRYorXwUKnx5y', 'SqHYHxVK94qmGBXwy717KHUl');
+        
+
+        try{
+        $attributes = array(
+             'razorpay_signature' => $data['razorpay_signature'],
+             'razorpay_payment_id' => $data['razorpay_payment_id'],
+             'razorpay_order_id' => $data['razorpay_order_id']
+        );
+        $order = $api->utility->verifyPaymentSignature($attributes);
+        $success = true;
+    }catch(SignatureVerificationError $e){
+
+        $succes = false;
     }
 
+        
+    if($success){
+        $user->save();
+        return redirect('/success');
+    }else{
+
+        return redirect()->route('error');
+    }
+
+      
+
+       
+
+    }
+
+
+    public function error(){
+        return view('error');
+    }
 
 }

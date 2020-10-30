@@ -39,15 +39,16 @@
 
     </div>
 
-    @if(Session::has('amount'))
-    <div class="container tex-center">
-    <form action="/pay" method="POST">
+    @if(Session::has('data'))
+ 
+    <div class="container tex-center mx-auto">
+    <form action="/pay" method="POST" class="text-center mx-auto mt-5">
       <script
           src="https://checkout.razorpay.com/v1/checkout.js"
-          data-key="rzp_test_hL4Etd0bXHkmO1"
-    data-amount="{{Session::get('amount')}}" 
+          data-key="rzp_test_CcRYorXwUKnx5y"
+    data-amount="{{Session::get('data.amount')}}" 
           data-currency="INR"
-    data-order_id="{{Session::get('order_id')}}"
+    data-order_id="{{Session::get('data.order_id')}}"
           data-buttontext="Pay with Razorpay"
           data-name="Coffee"
           data-description="Test transaction"
