@@ -9,10 +9,7 @@
 </head>
 <body>
 
-
-
     <div class="container mt-5 col-6 mx-auto pt-5">
-
         <div class="text-center">
         <img src="https://img.favpng.com/22/17/14/coffee-cup-breakfast-cafe-png-favpng-wum4UMesrHMdFxfe11NikwYbu.jpg" class="img-fluid" style="height:200px">
         </div>
@@ -29,14 +26,6 @@
            
             <button type="submit" class="btn btn-primary btn-block">Submit</button>
           </form>
-
-
-
-        
-
-
-
-
     </div>
 
     @if(Session::has('data'))
